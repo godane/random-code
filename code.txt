@@ -1,0 +1,287 @@
+#stable
+debootstrap --include linux-image-686-pae,grub-pc,locales,xz-utils --components main,contrib,non-free --arch i386 stretch chroot http://localhost/debian/
+#testing/unstable
+debootstrap --include linux-image-686-pae,grub-pc,locales,xz-utils --components main,contrib,non-free --arch i386 testing chroot http://localhost/debian/
+
+#amd64
+debootstrap --include linux-image-amd64,grub-pc,locales,xz-utils --components main,contrib,non-free --arch amd64 sid chroot http://localhost/debian
+
+#arm
+#on arm be carefull and don't over qemu-arm-static (will cause everything to think there to many softlinks)
+debootstrap --foreign --no-check-gpg --include locales --components main,contrib,non-free --arch armhf testing chroot-arm-rootfs http://localhost/debian/
+# then copy /usr/bin/qemu-arm-static to chroot-arm/usr/bin for armhf
+# then copy /usr/bin/qemu-aarch64-static to chroot-arm/usr/bin for arm64
+# then copy /usr/bin/qemu-x86_64-static to chroot/usr/bin
+/usr/sbin/update-binfmts --install qemu-x86_64 \
+   /usr/bin/qemu-x86_64-static \
+   --magic '\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x3e\x00' \
+   --mask '\xff\xff\xff\xff\xff\xfe\xfe\xfc\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff' \
+   --offset 0 --credential yes 
+
+cp /usr/bin/qemu-arm-static chroot-arm/usr/bin
+#after chroot into chroot-arm
+/debootstrap/debootstrap --second-stage
+
+
+
+#copy older package like bash
+#edit chroot-arm/debootstrap/required to remove bash
+#copy older package into tmp folder and do this: dpkg-deb -x *.deb .
+#copy folders in tmp to chroot-arm
+
+#code to get a list of packages
+#dpkg-query -W -f='${PackageSpec} ${Status}\n' | grep installed |  sort -u | cut -f1 -d \ > installed-pkgs
+#dpkg-query -W -f='${Package}\n'
+
+#in chroot stable
+apt-get install linux-headers-4.9.0-4-686-pae
+#in chroot testing
+apt-get install linux-headers-5.4.0-1-amd64
+#in chroot-arm sid
+apt-get install linux-headers-4.16.0-1-armmp
+apt-get install linux-image-4.16.0-1-armmp
+#arm64
+apt-get install linux-headers-4.14.0-1-arm64 linux-image-4.14.0-1-arm64
+
+apt-get install aufs-dkms
+dpkg-reconfigure locales
+
+#setup root password
+passwd root
+toor
+
+#Warning: keep squashfs filesystem under 4gb if your using vfat cause of UEFI boot
+
+#after making a overlay union in chroot-union
+for i in dev sys proc; do mount -o bind /$i chroot-union/$i; done
+
+for i in dev sys proc; do umount chroot-union/$i; done
+
+#live module
+mount -t overlay -o lowerdir=chroot,upperdir=chroot-ap,workdir=chroot-work overlay chroot-union
+
+apt-get install ntfs-3g parted dosfstools eject
+apt-get install wpasupplicant gnupg psmisc ntpdate ca-certificates ffmpeg modemmanager colord ntfs-3g udisks2 joystick iio-sensor-proxy usbmuxd usb-modeswitch squashfs-tools genisoimage curl zip usbutils dos2unix net-tools wireless-tools mc console-setup discover installation-report mdadm netcat-traditional hdparm openssh-sftp-server rsync busybox less sudo smartmontools libmtp-runtime kpartx lzma xfsprogs dosfstools aria2 file espeak nmap bzip2 p7zip-full unzip xz-utils net-tools dhcpcd5 dialog xmlstarlet growisofs wget jq software-properties-common whois jpegoptim pngcrush resolvconf
+apt-get install mercurial git subversion
+apt-get install samba python3-pip python3-all-dev python3-setuptools python3-wheel virtualenv apt-mirror debootstrap schroot
+apt-get install streamlink megatools
+apt-get install grub-efi-amd64-bin
+
+#install all non-free firmware
+apt-get install firmware-amd-graphics firmware-atheros firmware-bnx2 firmware-bnx2x firmware-brcm80211 firmware-cavium firmware-intel-sound firmware-intelwimax firmware-ipw2x00 firmware-ivtv firmware-iwlwifi firmware-libertas firmware-myricom  firmware-netxen firmware-qlogic firmware-realtek firmware-samsung firmware-siano firmware-ti-connectivity
+
+#for chroot-live
+#apt-get install --install-recommends live-task-base live-task-extra live-task-recommended live-task-standard
+
+#code to be use to make linux-live more modular in the building it
+mount -t overlay -o lowerdir=chroot-ap:chroot,upperdir=chroot-xorg,workdir=chroot-work overlay chroot-union
+
+
+
+apt-get install --install-recommends xorg xinit x11-utils xdg-utils mesa-utils mesa-vdpau-drivers mesa-va-drivers xdg-user-dirs x11-xserver-utils xserver-xephyr tigervnc-viewer
+
+#code to be use to make linux-live more modular in the building it
+mount -t overlay -o lowerdir=chroot-xorg:chroot-ap:chroot,upperdir=chroot-xfce4,workdir=chroot-work overlay chroot-union
+apt-get install --install-recommends xfce4 xfce4-goodies
+apt-get install gtk-theme-switch tango-icon-theme gnome-icon-theme gnome-themes-standard desktop-base 
+apt-get install zenity
+
+#latest module made is first in the lowerdir command
+mount -t overlay -o lowerdir=chroot-xfce:chroot-xorg:chroot-live:chroot,upperdir=chroot-xap,workdir=chroot-work overlay chroot-union
+
+apt-get install smplayer vlc mplayer mplayer-gui
+
+#apt-get install firmware-realtek firmware-amd-graphics
+
+#apt-get install --install-recommends multimedia-animation multimedia-audio-utilities multimedia-broadcasting multimedia-csound multimedia-photography multimedia-puredata multimedia-supercollider
+
+apt-get install qbittorrent
+apt-get install transmission-gtk par2 sabnzbdplus qalculate pulseaudio gvfs lxterminal mediainfo
+apt-get install gimp hplip hplip-gui pidgin geany htop xmms2 xsane evince gftp filezilla gparted audacious pavucontrol qpdfview gpicview okular gtkpod qcomicbook simple-scan 
+apt-get install printer-driver-gutenprint python-qt4 gsfonts ttf-dejavu-extra imagemagick  cutycapt
+apt-get install audacity mixxx v4l-utils mpv amule lmms linuxdcpp
+apt-get install handbrake blender inkscape olive-editor pdftk
+
+#don't install qemu stuff for arm
+apt-get install virtualbox virtualbox-qt virtualbox-guest-additions-iso virtualbox-ext-pack
+#this also needs to be done
+sudo VBoxManage extpack install --replace /usr/share/virtualbox-ext-pack/Oracle_VM_VirtualBox_Extension_Pack-6.1.0.vbox-extpack
+
+apt-get install binfmt-support qemu qemu-kvm qemu-utils
+apt-get install sidplay-base qemu-user-static vde2 qemu-block-extra ovmf qemu-system-x86
+#qemu-system-data conflicks sgabios
+
+apt-get install dnsmasq hostapd dns-root-data lighttpd php php-cgi php-fpm sox libsox-fmt-all ircd-hybrid mumble-server isc-dhcp-server nodejs yarn
+
+apt-get install php-zip php-xml php-sqlite3 php-mbstring php-http php-json php-gettext php-gd php-cli php-cgi droopy
+
+#depends for building kiwix and zimwriterfs
+apt-get install pkg-config libgumbo-dev libmagic-dev liblzma-dev libgtest-dev zlib1g-dev libctpp2-dev ctpp2-utils libpugixml1v5 libpugixml-dev libxapian-dev icu-devtools libicu-dev libmicrohttpd-dev xapian-tools meson libpython3.7-dev libffi-dev git cmake gdb build-essential lzma-dev automake autoconf libtool dh-autoreconf subversion ccache libbz2-dev uuid-dev libcurl4-openssl-dev
+
+
+mount -t overlay -o lowerdir=chroot-xap:chroot-xfce:chroot-xorg:chroot-live:chroot,upperdir=chroot-education,workdir=chroot-work overlay chroot-union
+
+
+
+apt-get install --install-recommends education-preschool education-highschool education-secondaryschool education-video
+
+apt-get install --install-recommends forensics-all forensics-extra forensics-extra-gui forensics-all-gui
+apt-get install --install-recommends games-chess games-card games-emulator 
+
+
+
+apt-get install dolphin-emu yabause
+# needed for wii remote to work
+apt-get install lswm wminput libcwiid1
+apt-get install bluetooth bluez bluez-tools rfkill
+apt-get install blueman
+
+dpkg --add-architecture i386
+apt-get update
+apt-get install pcsx2
+
+
+
+
+#for rpi desktop
+apt-get install lxde 
+#recommend packages for lxde
+apt-get install at-spi2-core eject libgtk-3-bin libgail-common libgtk2.0-bin gtk2-engines clipit transmission-gtk evince gnome-disk-utility gnome-system-tools gucharmap lxmusic audacious menu-xdg usermode network-manager-gnome lxtask gnome-screenshot lxlock notification-daemon xscreensaver lxhotkey-plugin-openbox lxhotkey-data pavucontrol obconf obsession scrot openbox-menu gvfs-backends gvfs-fuse 
+
+apt-get install gimagereader exactimage tesseract-ocr ruby
+
+
+apt-get install fonts-takao-mincho fonts-arphic-ukai fonts-arphic-uming fonts-ipafont-mincho fonts-ipafont-gothic fonts-unfonts-core fonts-nanum fonts-baekmuk fonts-lmodern fonts-unfonts-extra
+
+
+sudo usermod -a -G wireshark guest
+
+
+# for internet in the box install
+apt-get install ansible
+#apt-get install squid dansguardian
+
+
+apt-get install python3-pil #mcomix and comix will not install cause python3-imaging doesn't exist in sid repo anymore
+
+#debian arm doesn't have handbrake
+apt-get install handbrake
+#firefox in sid; firefox-esr in stretch
+
+apt-get install u-boot-tools
+apt-get install libglade2-0 libssl1.0.2 # need for manually install linuxdcpp
+
+
+
+
+
+
+apt-get install firmware-netronome
+
+#install all non-free firmware for arm
+apt-get install firmware-atheros firmware-brcm80211 firmware-libertas firmware-realtek firmware-misc-nonfree
+
+adduser --quiet --gecos --no-create-home --shell /bin/false --disabled-password vlc
+usermod -G audio,users vlc
+
+
+apt-get install libtemplate-plugin-xml-perl atomicparsley
+
+#pip3 install meson ninja
+
+
+apt-get install unrar
+
+apt-get install python3-apipkg python3-bs4 python3-bleach python3-certifi python3-chardet python3-click python3-coverage python3-cssselect python3-django python3-django-countries python3-django-taggit python3-execnet python3-factory-boy faker python3-first python3-freezegun python3-idna python3-jinja2 python3-livereload python3-lxml python3-markdown python3-olefile python3-pyflakes python3-pyquery python3-pytest-django python3-pytest-mock  python3-yaml python3-requests python3-tzlocal python3-unidecode python3-waitress python3-webtest python3-cov-core
+
+apt-get install python3-pip python3-all-dev python3-setuptools python3-wheel
+apt-get install python-pip python-all-dev python-setuptools python-wheel libpython2.7-dev
+apt-get install python-cryptography python-ipaddress python-markupsafe python-redis python-werkzeug python-chardet python-portalocker python-gevent python-requests brotli
+
+apt-get install default-jre libswt-gtk-3-java libswt-glx-gtk-3-jni libswt-cairo-gtk-3-jni
+pip3 install resumable-urlretrieve
+
+
+dpkg-reconfigure mumble-server
+update-rc.d mumble-server enable
+update-rc.d ircd-hybrid enable
+update-rc.d hostapd enable
+update-rc.d isc-dhcp-server enable 
+
+
+# to disable auto networking for rpi
+update-rc.d dhcpcd disable
+update-rc.d networking disable
+
+# add /sbin and /usr/sbin to /etc/profile
+
+# for local wayback
+pip install pywb
+
+
+
+apt-get install retroarch mupen64plus-ui-console libretro-nestopia libretro-mupen64plus libretro-mgba libretro-gtk-0.14-0 libretro-beetle-psx libretro-desmume libretro-beetle-pce-fast libretro-core-info libretro-bsnes-mercury-performance
+
+#setup guest user
+useradd -m -g users -s /bin/bash guest
+usermod -G audio,cdrom,floppy,plugdev,video,netdev,lp,scanner,kmem,sudo guest
+passwd guest
+guest
+
+#if /etc/apt/apt.conf.d/20auto-upgrades exist then change the variables in it to 0
+
+
+#after chroot
+umount chroot/dev
+umount chroot/proc
+umount chroot/sys
+
+#error with aufs
+mount.aufs cause systemd remount to fail causing filesystem to be read only
+
+mksquashfs chroot 001-debian-sid-${y}${m}${d}-${h}${m}.sb -comp gzip -processors 2 -mem 512M
+
+#extracting berryboot.img
+dd if=berryboot.img of=berryboot.lzo bs=64 skip=1
+lzop -d berryboot.lzo
+cpio -idmv < berryboot
+#in folder of the rootfs.cpio extract
+find . -print | cpio -o -H newc 2>/dev/null | xz -f --extreme --check=crc32 >berryboot.img
+mkimage -A arm -T ramdisk -C none -d berryboot.img berryboot.img1
+
+
+
+#grub-install --target=x86_64-efi --recheck --removable --efi-directory=/media/guest/$folder --boot-directory=/media/guest/$folder/boot
+
+#grub-install --target=i386-pc --recheck --boot-directory=/media/guest/$folder/boot /dev/sdf
+#i386-pc is need for qemu emulation to work
+#copy /EFI/boot/grubx64.efi to /EFI/boot/mmx64.efi
+#there is a error and will cause usb stick to not boot cause its missing
+
+#kail-linux setup
+#amd64
+#debootstrap --include grub-pc,locales,xz-utils --components main,contrib,non-free --arch amd64 sid chroot http://localhost/debian
+
+
+#extract kail-archive-keyring deb to get the gpg from it to put in in /etc/apt/trusted.gpg.d folder
+apt-get install kali-tools-forensics kali-linux-large kali-linux-gpu
+apt-get install wine winetricks
+apt-get install xfce4 xfce4-goodies
+apt-get install wpasupplicant gnupg psmisc ntpdate ca-certificates ffmpeg modemmanager colord ntfs-3g udisks2 joystick iio-sensor-proxy usbmuxd usb-modeswitch squashfs-tools genisoimage curl zip usbutils dos2unix net-tools wireless-tools mc console-setup discover installation-report mdadm netcat-traditional hdparm openssh-sftp-server rsync busybox less sudo smartmontools libmtp-runtime kpartx lzma xfsprogs dosfstools aria2 file espeak nmap bzip2 p7zip-full unzip xz-utils net-tools dhcpcd5 dialog xmlstarlet growisofs wget jq software-properties-common whois jpegoptim pngcrush resolvcon
+
+
+apt-get install htop mediainfo gimp smplayer geany pidgin transmission-gtk audacity par2 sabnzbdplus unrar pdftk python3-pil gparted lighttpd filezilla gpicview okular gtkpod qcomicbook simple-scan audacious
+apt-get install img2pdf exiftool ocrmypdf
+apt-get install hplip hplip-gui
+apt-get install apt-mirror debootstrap
+
+apt-get install virtualbox virtualbox-qt virtualbox-guest-additions-iso virtualbox-ext-pack
+#this also needs to be done
+sudo VBoxManage extpack install --replace /usr/share/virtualbox-ext-pack/Oracle_VM_VirtualBox_Extension_Pack-6.1.0.vbox-extpack
+
+apt-get install binfmt-support qemu qemu-kvm qemu-utils
+apt-get install sidplay-base qemu-user-static vde2 qemu-block-extra sgabios ovmf qemu-system-x86
+
+#when using debian testing non-free live image make sure to have ath9k_htc.conf and qemu-blacklist.conf in /etc/modprobe.d as empty files
+#to fix using my linux-live scripts with there squashfs file
+#with debian testing non-free live image change recompress the squashfs to gzip for better performance
