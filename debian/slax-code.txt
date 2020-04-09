@@ -1,0 +1,39 @@
+#code to build slax livecd modules using debootstrap
+
+#amd64 sid
+debootstrap --include linux-image-amd64,grub-pc,net-tools,locales,xz-utils --components main,contrib,non-free --arch amd64 sid chroot http://localhost/debian
+
+
+#before using chroot
+for i in dev sys proc; do mount -o bind /$i chroot/$i; done
+
+echo "APT::Install-Recommends "0";" > /etc/apt/apt.conf.d/99local
+
+#packages of slax 01-core.sb that are not in debootstrap base chroot
+apt-get install acpi-support-base acpid alsa-utils apparmor busybox bzip2 ca-certificates console-setup console-setup-linux discover dnsmasq dosfstools dvd+rw-tools eject file firmware-linux-free fuse gdbm-l10n gddrescue genisoimage gpart gpm groff-base growisofs hdparm htop installation-report kbd keyboard-configuration laptop-detect lsof man-db mc mdadm mime-support netcat netcat-traditional ntfs-3g ntpdate openssh-client openssh-server openssh-sftp-server openssl pciutils pm-utils powermgmt-base psmisc python3 rfkill rsync sdparm smartmontools squashfs-tools ssh unzip usb-modeswitch usbutils wget wireless-tools xkb-data zip curl sudo p7zip-full exfat-utils exfat-fuse
+#packages of slax 02-firmware.sb
+apt-get install firmware-linux-free firmware-linux-nonfree firmware-atheros firmware-iwlwifi firmware-zd1211 firmware-realtek firmware-bnx2 firmware-brcm80211 firmware-cavium firmware-ipw2x00 firmware-libertas    firmware-ti-connectivity firmware-b43-installer
+#packages of slax 03-xorg.sb
+apt-get install xserver-xorg xserver-xorg-video-all xserver-xorg-video-intel xinit xterm blackbox libxcursor1 breeze-cursor-theme x11-utils wmctrl xdotool libdrm-intel1 libgl1-mesa-dri libglu1-mesa x11-xserver-utils
+# Set setuid bit on xorg binary, so it can be started by guest user
+chmod u+s /usr/lib/xorg/Xorg
+# use only white cursors. There were some troubles if the other cursors
+# was left behind, installing gtk apps reverted the cursor from white to gray,
+# so we're going to nuke it to leave only Snow cursors active.
+rm -Rf /usr/share/icons/breeze_cursors
+mv /usr/share/icons/Breeze_Snow /usr/share/icons/breeze_cursors
+update-alternatives --set x-terminal-emulator /usr/bin/xterm
+#packages of slax 04-desktop.sb
+apt-get install fluxbox feh compton volumeicon-alsa murrine-themes libnotify4 scrot
+#packages of slax 05-apps.sb
+apt-get install qalculate-gtk pcmanfm lxtask xarchiver xdg-utils libgconf-2-4 wicd
+#packages of slax 06-chromium
+apt-get install chromium
+echo 'export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disk-cache-dir=/dev/null --disk-cache-size=1"' >>/etc/chromium.d/default-flags
+
+
+#packages to add if you combine core and firmware modules
+apt-get install lightdm xorg xfce4 xfce4-goodies firefox-esr transmission gimp geany xarchiver pidgin audacity sabnzbdplus gpicview filezilla audacious gparted smplayer evince qalculate virt-manager hplip hplip-gui pdftk img2pdf ocrmypdf
+dpkg-reconfigure locales
+password root
+toor
