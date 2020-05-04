@@ -1,0 +1,13 @@
+#grub-install --target=x86_64-efi --recheck --removable --efi-directory=/media/guest/$folder --boot-directory=/media/guest/$folder/boot
+
+#grub-install --target=i386-pc --recheck --boot-directory=/media/guest/$folder/boot /dev/sdf
+#i386-pc is need for qemu emulation to work
+#copy /EFI/boot/grubx64.efi to /EFI/boot/mmx64.efi
+#there is a error and will cause usb stick to not boot cause its missing
+#add this to EFI/debian/grub.cfg
+search --file --set=root /.disk/info
+set prefix=($root)/boot/grub
+source $prefix/grub.cfg
+#make sure /.disk/info file exist so it can find usb stick
+#remove /EFI/boot/BOOTX64.CSV and /EFI/boot/fbx64.efi to get usb stick to boot
+#copy all x86_64-efi folder in /usr/lib/grub folder to usb stick boot/grub folder
