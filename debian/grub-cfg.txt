@@ -1,0 +1,50 @@
+insmod part_acorn
+insmod part_amiga
+insmod part_apple
+insmod part_bsd
+insmod part_dfly
+insmod part_dvh
+insmod part_gpt
+insmod part_msdos
+insmod part_plan
+insmod part_sun
+insmod part_sunpc
+
+if loadfont $prefix/font.pf2 ; then
+  set gfxmode=800x600
+  set gfxpayload=keep
+  insmod efi_gop
+  insmod efi_uga
+  insmod video_bochs
+  insmod video_cirrus
+  insmod gfxterm
+  insmod png
+  terminal_output gfxterm
+fi
+
+if background_image /isolinux/splash.png; then
+  set color_normal=light-gray/black
+  set color_highlight=white/black
+elif background_image /splash.png; then
+  set color_normal=light-gray/black
+  set color_highlight=white/black
+else
+  set menu_color_normal=cyan/blue
+  set menu_color_highlight=white/blue
+fi
+
+insmod play
+play 960 440 1 0 4 440 1
+if [ ${iso_path} ] ; then
+set loopback="findiso=${iso_path}"
+fi
+
+menuentry "debian-live-amd64-sid-20200425" {
+linux /debian-live-amd64-sid-20200425/boot/vmlinuz gfxpayload=1024x768 load_ramdisk=1 prompt_ramdisk=0 rm printk.time=0 iommu=soft from=debian-live-amd64-sid-20200425 user=guest hostname=debian timezone=America/New_York lang=en_US.utf8 overlayfs=y apparmor=0
+initrd /debian-live-amd64-sid-20200425/boot/initrfs.img
+}
+
+menuentry "debian-live-amd64-sid-20200425-perch" {
+linux /debian-live-amd64-sid-20200425/boot/vmlinuz gfxpayload=1024x768 load_ramdisk=1 prompt_ramdisk=0 rm printk.time=0 iommu=soft from=debian-live-amd64-sid-20200425-perch user=guest hostname=debian timezone=America/New_York lang=en_US.utf8 overlayfs=y apparmor=0
+initrd /debian-live-amd64-sid-20200425/boot/initrfs.img
+}
