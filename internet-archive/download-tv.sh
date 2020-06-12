@@ -5,7 +5,7 @@ base="$(basename $1)"
 if [ ! -f "$base.mp4" ]; then
 url1="http://archive.org/download/${base}/${base}.mp4"
 diff="185"
-endt1="$(curl -L -s http://archive.org/details/${base} | sed 's|","|\n|g' | grep t=  | sed 's|.*/||g' | grep ignore | sed 's|&ignore.*||g' | tail -1)"
+endt1="$(curl -L -s http://archive.org/details/${base} | sed 's|","|\n|g' | grep t=  | sed 's|.*/||g' | grep ignore | sed 's|&ignore.*||g' | sed 's|\u0.*||g' | sed 's|\\||g' | tail -1)"
 echo $endt1
 endt="$(echo "$endt1 + $diff" | bc)"
 for i in $(seq 0 $diff $endt); do #$(curl -s $1 | sed 's|","|\n|g' | grep mp4 | sed 's|.*\["||g' | sed 's|".*||g' | grep ^http | sed 's|0/|1/|g' ); do
