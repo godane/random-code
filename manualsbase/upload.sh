@@ -10,7 +10,7 @@ for i in $(seq ${c}00 ${c}99); do
 		[ -f "$url" ] || wget -x -c $url
 		if [ -f "$url" ]; then
 			if [ "$(grep "$(basename "${i}.pdf")" $url)" != "" ]; then
-				echo "$file is in $url"
+				echo "${i}.pdf is in $url"
 				continue
 			fi
 		fi
