@@ -1,13 +1,13 @@
 #!/bin/bash
 
-y="2019"
+y="2020"
 #m="07"
 
 #proxy: 198.100.148.55:3128 31.173.74.73:8080 183.111.169.202:3128 213.136.79.124:80 209.34.18.162:3128 85.143.24.70:80
 
 if [ "$1" == "" ]; then
 	#days="$(seq -w 30 31)"
-	days="$(seq -w 07 10)"
+	days="$(seq -w 01 31)"
 	#days="$(seq -w 29 31)"
 else
 	days="$1"
@@ -24,7 +24,7 @@ if [ "$3" == "" ]; then
 else
 	hours="$3"
 fi
-for m in 09; do
+for m in 03; do
 #for d in $(seq -w 01 31); do
 for d in $days; do
 	#for i in Tue Wed Thu Fri Sat Sun Mon; do
@@ -59,12 +59,13 @@ for d in $days; do
 		#	ip_proxy="159.182.4.53:80"
 		#fi
 		#fi
+		dir="$y/$m/$d"
 		file="${y}${m}${d}-${i}${h}${min}.mp3"
-		[ -d $d ] || mkdir -p $d
+		[ -d $dir ] || mkdir -p $dir
 		if [ "$ip_proxy" == "" ]; then
-			[ -f $d/$file ] || wget -c -e robots=off --no-check-certificate https://archives.kpfa.org/data/$file -O $d/$file
+			[ -f $dir/$file ] || wget -c -e robots=off --no-check-certificate -T 2 -t 2 https://archives.kpfa.org/data/$file -O $dir/$file
 		else
-			[ -f $d/$file ] || wget -c -e robots=off -U firefox -e use_proxy=yes -e http_proxy=$ip_proxy https://archives.kpfa.org/data/$file -O $d/$file
+			[ -f $dir/$file ] || wget -c -e robots=off -U firefox -e use_proxy=yes -e http_proxy=$ip_proxy https://archives.kpfa.org/data/$file -O $dir/$file
 		fi
 	done
 	done
