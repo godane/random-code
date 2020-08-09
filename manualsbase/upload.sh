@@ -16,6 +16,7 @@ for i in $(seq ${c}00 ${c}99); do
 		fi
 	fi
 bash download.sh $i
+find -empty -delete
 ls ${i}.pdf | while read file; do
 	title1="$(curl -s http://www.manualsbase.com/manual/${i}/1/1/1/ | grep -a title | sed 's|.*<title>||g' | sed 's| - ManualsBase.com.*||g' | head -1)"
 	title="$title1"
