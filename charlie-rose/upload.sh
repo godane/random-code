@@ -12,8 +12,9 @@ fi
 
 vurl="$(cat $y/$m/index.html | grep -B3 " ${d}</i>" | sed 's|.*episodes|https://charlierose.com/video/player|g' | sed 's|" .*||g' | grep ^http | grep -v autoplay | head -1)"
 date="${y}-${m}-${d1}"
+id="Charlie-Rose-${date}"
 desc="$(curl -s $vurl | grep desc | sed 's|.*content="||g' | sed 's|".*||g' | head -1)"
-file="$y/$m/Charlie-Rose-${date}.mp4"
+file="$y/$m/${id}.mp4"
 guests="$(curl -s $vurl | grep '<title>' | sed 's|.*<title>||g' | sed 's|</title>.*||g' | sed 's| — |; |g')"
 creator="PBS"
 title="Charlie Rose ${date}"
