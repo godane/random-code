@@ -1,5 +1,6 @@
 #!/bin/bash
 
+check="yes"
 y="1996"
 for m in 11; do
 for d in $(seq 1 31); do
@@ -12,11 +13,20 @@ fi
 vurl="$(cat $y/$m/index.html | grep -B3 " ${d}</i>" | sed 's|.*episodes|https://charlierose.com/video/player|g' | sed 's|" .*||g' | grep ^http | grep -v autoplay | head -1)"
 date="${y}-${m}-${d1}"
 desc="$(curl -s $vurl | grep desc | sed 's|.*content="||g' | sed 's|".*||g' | head -1)"
-file="$y/$m/Charlie-Rose-${y}-${m}-${d1}.mp4"
+file="$y/$m/Charlie-Rose-${date}.mp4"
 guests="$(curl -s $vurl | grep '<title>' | sed 's|.*<title>||g' | sed 's|</title>.*||g' | sed 's| — |; |g')"
 creator="PBS"
 title="Charlie Rose ${date}"
-
+	if [ "$check" == "yes" ]; then
+		url="archive.org/download/$id"
+		[ -f "$url" ] || wget -x -c $url
+		if [ -f "$url" ]; then
+			if [ "$(grep "$(basename "$file")" $url)" != "" ]; then
+				echo "$file is in $url"
+				continue
+			fi
+		fi
+	fi
 	ia upload $id "$file" \
 		--metadata="collection:godaneinbox" \
 		--metadata="mediatype:movies" \
