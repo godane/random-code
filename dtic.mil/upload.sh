@@ -3,7 +3,6 @@
 #k="780"
 for k in 1050; do #$(seq 920 929); do
 order="$(seq -w ${k}000 ${k}999)"
-creator="Defense Technical Information Center"
 bucket="x-amz-auto-make-bucket:1"
 #bucket="x-archive-ignore-preexisting-bucket:1"
 #type="ADA"
@@ -76,7 +75,7 @@ for type in $ad0 ADA ADB ADC ADP; do
 	ia upload $id "$file" -H "x-archive-check-file:0" \
 		--metadata="collection:godaneinbox" \
 		--metadata="mediatype:texts" \
-		--metadata="creator:$creator" \
+		--metadata="creator:Defense Technical Information Center" \
 		--metadata="language:english" \
 		--metadata="description:$desc" \
 		--metadata="date:$date" \
