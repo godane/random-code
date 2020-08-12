@@ -23,7 +23,7 @@ ls ${i}.pdf | while read file; do
 
 	basekeywords="manualsbase; manuals;"
 
-	ia upload $id "$file" -H "x-archive-check-file:0" \
+	ia upload $id "$file" -H "x-archive-check-file:0" -H "x-archive-queue-derive:0" \
 		--metadata="collection:godaneinbox" \
 		--metadata="mediatype:texts" \
 		--metadata="title:$title" \
