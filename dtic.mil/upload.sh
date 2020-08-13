@@ -2,7 +2,8 @@
 
 #k="780"
 for k in 1050; do #$(seq 920 929); do
-order="$(seq -w ${k}000 ${k}999)"
+#order="$(seq -w ${k}000 ${k}999)"
+order="${k}000"
 bucket="x-amz-auto-make-bucket:1"
 #bucket="x-archive-ignore-preexisting-bucket:1"
 #type="ADA"
@@ -36,10 +37,7 @@ for type in $ad0 ADA ADB ADC ADP; do
 		#findfile="$(find $domain/dtic/tr/fulltext/u2 -size +19k -type f -name "${i}.pdf")"
 	fi
 	#echo "${type1}${i}.pdf"
-	findfile="$(find $domain/dtic/tr/fulltext/u2 -size +19k -type f -name "${type1}${i}.pdf")"
 
-	file="$findfile"
-	[ -f "$file" ] || continue
 
 	if [ "$check" == "yes" ]; then
 		url="archive.org/download/$id"
@@ -51,6 +49,17 @@ for type in $ad0 ADA ADB ADC ADP; do
 			fi
 		fi
 	fi
+
+	domain="apps.dtic.mil"
+	#domain="131.84.180.30"
+	path="$domain/dtic/tr/fulltext/u2"
+	[ -d $path ] || mkdir -p $path
+	wget -x -U firefox --no-check-certificate -T 5 -c https://${path}/${type1}${i}.pdf
+
+	findfile="$(find $domain/dtic/tr/fulltext/u2 -size +19k -type f -name "${type1}${i}.pdf")"
+	file="$findfile"
+	[ -f "$file" ] || continue
+
 	#anum="$(curl -s http://www.dtic.mil/docs/citations/${b}${i} | grep 'Accession Number : ' | sed 's|.*</b>||g' | sed 's|</p>||g')"
 
 	title1="$(curl -A Firefox -s https://$domain/docs/citations/${b}${i} | grep '<title>' | sed 's|<title>||g' | sed 's|</title>||g')"
@@ -77,10 +86,10 @@ for type in $ad0 ADA ADB ADC ADP; do
 		--metadata="mediatype:texts" \
 		--metadata="creator:Defense Technical Information Center" \
 		--metadata="language:english" \
-		--metadata="description:$desc" \
 		--metadata="date:$date" \
 		--metadata="title:$title" \
-		--metadata="subject:${basekeywords}"
+		--metadata="subject:${basekeywords}" \
+		--metadata="description:$desc"
 done
 done
 done
