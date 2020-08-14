@@ -2,8 +2,8 @@
 
 #k="780"
 for k in $1; do #$(seq 920 929); do
-#order="$(seq -w ${k}000 ${k}999)"
-order="${k}000"
+order="$(seq -w ${k}000 ${k}999)"
+#order="${k}000"
 bucket="x-amz-auto-make-bucket:1"
 #bucket="x-archive-ignore-preexisting-bucket:1"
 #type="ADA"
@@ -42,11 +42,16 @@ for type in $ad0 ADA ADB ADC ADP; do
 	#domain="131.84.180.30"
 	path="$domain/dtic/tr/fulltext/u2"
 	[ -d $path ] || mkdir -p $path
+	url="archive.org/download/$id"
+	[ -f "$url" ] || wget -x -c $url
+	if [ ! -f "$url" ]; then
+		[ -f $path/${type1}${i}.pdf ] || wget -x -U firefox --no-check-certificate -T 5 -c https://${path}/${type1}${i}.pdf
+	fi
 	findfile="$(find $path -size +19k -type f -name "${type1}${i}.pdf")"
 	file="$findfile"
+	[ -f "$file" ] || continue
+
 	if [ "$check" == "yes" ]; then
-		url="archive.org/download/$id"
-		[ -f "$url" ] || wget -x -c $url
 		if [ -f "$url" ]; then
 			if [ "$(grep "$(basename "$file")" $url)" != "" ]; then
 				echo "$file is in $url"
@@ -56,9 +61,6 @@ for type in $ad0 ADA ADB ADC ADP; do
 	fi
 
 
-	[ -f $path/${type1}${i}.pdf ] || wget -x -U firefox --no-check-certificate -T 5 -c https://${path}/${type1}${i}.pdf
-
-	[ -f "$file" ] || continue
 
 	#anum="$(curl -s http://www.dtic.mil/docs/citations/${b}${i} | grep 'Accession Number : ' | sed 's|.*</b>||g' | sed 's|</p>||g')"
 
