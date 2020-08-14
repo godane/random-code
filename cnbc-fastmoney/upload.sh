@@ -7,6 +7,9 @@ for m in $(seq -w 01 12); do
 		title="CNBC FastMoney Podcast ${y}-${m}-${d}"
 		basekeywords="CNBC FastMoney Podcast;"
 		id="cnbc-fastmoney-podcast-${y}-${m}-${d}"
+		creator="CNBC"
+		lang="english"
+		date="${y}-${m}-${d}"
 		file="$y/$m/FastMoney-${m}${d}${y:2:4}.mp3"
 		if [ "$check" == "yes" ]; then
 			url="archive.org/download/$id"
@@ -24,6 +27,9 @@ for m in $(seq -w 01 12); do
 			--metadata="collection:godaneinbox" \
 			--metadata="mediatype:audio" \
 			--metadata="title:$title" \
+			--metadata="date:$date" \
+			--metadata="creator:$creator" \
+			--metadata="language:$lang" \
 			--metadata="subject:${basekeywords}"
 	done
 done
