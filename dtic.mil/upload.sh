@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #k="780"
-for k in 1050; do #$(seq 920 929); do
+for k in $1; do #$(seq 920 929); do
 #order="$(seq -w ${k}000 ${k}999)"
 order="${k}000"
 bucket="x-amz-auto-make-bucket:1"
@@ -38,7 +38,12 @@ for type in $ad0 ADA ADB ADC ADP; do
 	fi
 	#echo "${type1}${i}.pdf"
 
-
+	domain="apps.dtic.mil"
+	#domain="131.84.180.30"
+	path="$domain/dtic/tr/fulltext/u2"
+	[ -d $path ] || mkdir -p $path
+	findfile="$(find $path -size +19k -type f -name "${type1}${i}.pdf")"
+	file="$findfile"
 	if [ "$check" == "yes" ]; then
 		url="archive.org/download/$id"
 		[ -f "$url" ] || wget -x -c $url
@@ -50,14 +55,9 @@ for type in $ad0 ADA ADB ADC ADP; do
 		fi
 	fi
 
-	domain="apps.dtic.mil"
-	#domain="131.84.180.30"
-	path="$domain/dtic/tr/fulltext/u2"
-	[ -d $path ] || mkdir -p $path
-	wget -x -U firefox --no-check-certificate -T 5 -c https://${path}/${type1}${i}.pdf
 
-	findfile="$(find $domain/dtic/tr/fulltext/u2 -size +19k -type f -name "${type1}${i}.pdf")"
-	file="$findfile"
+	[ -f $path/${type1}${i}.pdf ] || wget -x -U firefox --no-check-certificate -T 5 -c https://${path}/${type1}${i}.pdf
+
 	[ -f "$file" ] || continue
 
 	#anum="$(curl -s http://www.dtic.mil/docs/citations/${b}${i} | grep 'Accession Number : ' | sed 's|.*</b>||g' | sed 's|</p>||g')"
