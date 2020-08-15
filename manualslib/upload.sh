@@ -9,8 +9,8 @@ for i in $(seq ${c}00 ${c}99); do
 		url="archive.org/download/$id"
 		[ -f "$url" ] || wget -x -c $url
 		if [ -f "$url" ]; then
-			if [ "$(grep "$(basename "${i}.pdf")" $url)" != "" ]; then
-				echo "${i}.pdf is in $url"
+			if [ "$(grep "$(basename "${i}.cbz")" $url)" != "" ]; then
+				echo "${i}.cbz is in $url"
 				continue
 			fi
 		fi
