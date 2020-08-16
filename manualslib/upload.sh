@@ -2,6 +2,7 @@
 
 
 check="yes"
+ext="pdf"
 c="$1"
 for i in $(seq ${c}00 ${c}99); do
 	id="manualslib-id-${i}"
@@ -9,15 +10,15 @@ for i in $(seq ${c}00 ${c}99); do
 		url="archive.org/download/$id"
 		[ -f "$url" ] || wget -x -c $url
 		if [ -f "$url" ]; then
-			if [ "$(grep "$(basename "${i}.cbz")" $url)" != "" ]; then
-				echo "${i}.cbz is in $url"
+			if [ "$(grep "$(basename "${i}.${ext}")" $url)" != "" ]; then
+				echo "${i}.${ext} is in $url"
 				continue
 			fi
 		fi
 	fi
 bash download.sh $i
-find -name "${i}.cbz" -empty -delete
-ls ${i}.cbz | while read file; do
+find -name "${i}.${ext}" -empty -delete
+ls ${i}.${ext} | while read file; do
 	title1="$(curl -L -s https://www.manualslib.com/manual/$i/a.html | grep '<h1>' | tail -1 | sed 's|.*<h1>||g' | sed 's|</h1>.*||g')"
 	title="$title1"
 
