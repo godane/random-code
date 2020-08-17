@@ -2,7 +2,7 @@
 
 
 check="yes"
-ext="pdf"
+ext="cbz"
 c="$1"
 for i in $(seq ${c}00 ${c}99); do
 	id="manualslib-id-${i}"
@@ -16,7 +16,7 @@ for i in $(seq ${c}00 ${c}99); do
 			fi
 		fi
 	fi
-bash download.sh $i
+bash downloadcbz.sh $i
 find -name "${i}.${ext}" -empty -delete
 ls ${i}.${ext} | while read file; do
 	title1="$(curl -L -s https://www.manualslib.com/manual/$i/a.html | grep '<h1>' | tail -1 | sed 's|.*<h1>||g' | sed 's|</h1>.*||g')"
