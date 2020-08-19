@@ -3,10 +3,12 @@
 
 check="yes"
 ext="pdf"
-brand="aaton"
+brand="arri"
 gear="camcorder"
 
-turl="https://www.central-manuals.com/instructions_manual_user_guide_camcorder/aaton.php"
+turl="https://www.central-manuals.com/instructions_manual_user_guide_${gear}/${brand}.php"
+
+bash download.sh $turl
 
 ls *.${ext} | while read file; do
 	#id1="$(curl -s $url | grep $file | grep -v "meta name=" | sed 's|.*download/||g' | sed 's|".*||g' | sed 's|/|_|g' | sed 's|(|_|g' | sed 's|)|_|g' | sed 's|\&|_|g' | sed "s|'|_|g" | sed 's|.pdf$||g')"
@@ -34,5 +36,4 @@ ls *.${ext} | while read file; do
 		--metadata="mediatype:texts" \
 		--metadata="title:$title" \
 		--metadata="subject:${basekeywords}"
-done
 done
