@@ -5,7 +5,7 @@ for m in $(seq -w 01 12); do
 	for d in $(seq -w 01 31); do
 		ls $y/$m/$d/*.mp4 | while read file; do
 		name="news9"
-		id="kbs-news-video-${name}-${y}-${m}-${d}"
+		id="kbs-news-video-${name}-${y}-${m}-${d}-1500k"
 		title="KBS News Video ${name} ${y}-${m}-${d}"
 		basekeywords="KBS News Video; ${name};"
 	
