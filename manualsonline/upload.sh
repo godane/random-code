@@ -2,24 +2,24 @@
 
 url="$1"
 
-brand="twelvevolt"
+check="yes"
+brand="$1"
 
-curl -s http://www.manualsonline.com/brands/$brand | grep -A1 manual-cta | grep $brand | grep product_list | sed 's|.*href="||g' | sed 's|".*||g' | sort | uniq > plist.txt
+[ -d $brand ] || mkdir -p $brand
+curl -s http://www.manualsonline.com/brands/$brand | grep -A1 manual-cta | grep $brand | grep product_list | sed 's|.*href="||g' | sed 's|".*||g' | sort | uniq > $brand/plist.txt
 
-for url in $(cat plist.txt); do
+for url in $(cat $brand/plist.txt); do
 	#curl -s $url | grep manuals/mfg/$brand | grep '<li>' | sed 's|.*href="||g' | sed 's|".*||g' > mlist.txt
-	curl -L -s $url | grep '<h5>' | grep href= | sed 's|.*href="|www.manualsonline.com|g' | sed 's|".*||g' > mlist.txt
-	for murl in $(cat mlist.txt); do
+	curl -L -s $url | grep '<h5>' | grep href= | sed 's|.*href="|www.manualsonline.com|g' | sed 's|".*||g' > $brand/mlist.txt
+	for murl in $(cat $brand/mlist.txt); do
 		echo $murl
-		curl -L -s $murl | grep pdfstream | grep pdfstream | sed 's|.*href="||g' | sed 's|".*||g' > pdfurls.txt
-		for pdfurl in $(cat pdfurls.txt); do
+		curl -L -s $murl | grep pdfstream | grep pdfstream | sed 's|.*href="||g' | sed 's|".*||g' > $brand/pdfurls.txt
+		for pdfurl in $(cat $brand/pdfurls.txt); do
 			id1="$(basename $pdfurl .pdf)"
 			id="manualsonline-id-$id1"
-			title="$(curl -L -s $murl | grep '<title>' | head -1 | sed 's|.*<title>||g' | sed 's| \| .*||g')"
 			echo $id
-			echo "$title"
-			file="$(basename $pdfurl)"
-			[ -f $file ] || wget -c $pdfurl
+			#echo "$title"
+			file="$brand/$(basename $pdfurl)"
 			if [ "$check" == "yes" ]; then
 				url="archive.org/download/$id"
 				[ -f "$url" ] || wget -x -c $url
@@ -30,6 +30,9 @@ for url in $(cat plist.txt); do
 					fi
 				fi
 			fi
+			title="$(curl -L -s $murl | grep '<title>' | head -1 | sed 's|.*<title>||g' | sed 's| \| .*||g')"
+			[ -f $file ] || wget -c $pdfurl -O $file
+
 			basekeywords="manualsonline; manuals; ${brand};"
 
 		ia upload $id "$file" -H "x-archive-check-file:0" -H "x-archive-queue-derive:0" \
