@@ -7,22 +7,21 @@ idup="y"
 brand="$1"
 
 [ -d $brand ] || mkdir -p $brand
-brandurl="www.manualsonline.com/brands/$brand "
-[ -f $brandurl ] || wget -x -c $brandurl -P $brand
-cat $brand/$brandurl | grep -A1 manual-cta | grep $brand | grep product_list | sed 's|.*href="||g' | sed 's|".*||g' | sed 's|http://||g' | sort | uniq > $brand/plist.txt
+brandurl="www.manualsonline.com/brands/$brand"
 
-for url in $(cat $brand/plist.txt); do
-	[ -f $brand/$url ] || wget -x -c $url -P $brand
-	#cat $brand/$url | grep '<h5>' | grep href= | sed "s|.*href=\"|$(echo "$url" | sed 's|/manuals/.*||g')|g" | sed 's|".*||g' >> $brand/mlist.txt
-	#cat $brand/mlist-u.txt | sort | uniq > $brand/mlist.txt
-	mlist="$(cat $brand/$url | grep '<h5>' | grep href= | sed "s|.*href=\"|$(echo "$url" | sed 's|/manuals/.*||g')|g" | sed 's|".*||g')"
-#done
+if [ ! -f $brand/$brandurl ]; then
+wget $brandurl -r --no-parent -l 3 --accept-regex="(product_list|/$brand/${brand}_|product_list.html?p=)" --reject-regex="(/social_auth/|&l=|/support/)" -H -D manualsonline.com -P $brand
+fi
 
-for murl in $mlist; do
+for url in $(find $brand -name "*product_list.html*" -type f | grep manuals/mfg/$brand/ | sort); do
+	cat $url | grep '<h5>' | sed 's|.*href="|www.manualsonline.com|g' | sed 's|".*||g' | grep ^www >> $brand/mlist-unsorted.txt
+done
+
+cat $brand/mlist-unsorted.txt | sort | uniq > $brand/mlist.txt
+
+for murl in $(cat $brand/mlist.txt); do
 	echo $murl
 	[ -f $brand/$murl ] || wget -x -c $murl -P $brand
-	#cat $brand/$murl | grep pdfstream | sed 's|.*href="||g' | sed 's|".*||g' | sort | uniq >> $brand/pdfurls-unsorted.txt
-	#cat $brand/pdfurls-unsorted.txt | sort | uniq > $brand/pdfurls.txt
 	pdfid="$(cat $brand/$murl | grep pdfasset | grep thumbbase | sed 's|-thumb-.*||g'  | sed 's|.*/||g' | sort | uniq)"
 	pdfurls="http://dl.owneriq.net/${pdfid:0:1}/${pdfid}.pdf"
 		for pdfurl in $pdfurls; do
