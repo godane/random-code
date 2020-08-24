@@ -23,6 +23,7 @@ for murl in $(cat $brand/mlist.txt); do
 	echo $murl
 	[ -f $brand/$murl ] || wget -x -c $murl -P $brand
 	pdfid="$(cat $brand/$murl | grep pdfasset | grep thumbbase | sed 's|-thumb-.*||g'  | sed 's|.*/||g' | sort | uniq)"
+	echo "$pdfid" >> $brand/pdfids.txt
 	pdfurls="http://dl.owneriq.net/${pdfid:0:1}/${pdfid}.pdf"
 		for pdfurl in $pdfurls; do
 			id1="$(basename $pdfurl .pdf)"
@@ -31,6 +32,7 @@ for murl in $(cat $brand/mlist.txt); do
 			#echo "$title"
 			file="$brand/$(basename $pdfurl)"
 			if [ "$idup" = "y" ]; then
+				touch $brand/ids.txt
 				if [ "$(grep $id $brand/ids.txt)" != "" ]; then
 					echo "$id was recently uploaded."
 					continue
@@ -63,6 +65,6 @@ for murl in $(cat $brand/mlist.txt); do
 			fi
 		done
 	done
-done
+#done
 
 		
