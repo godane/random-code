@@ -1,0 +1,62 @@
+#!/bin/bash
+# Write by @umitkabuli (GitHub)
+# Date March 5, 2019
+# Usage issuu-downloader <issuu doc url> <last page number for download>
+#return  value
+# 0: no error
+# 1: Usage or wrong parameter count
+# 2: url not found
+# 3: issuu documentId not found
+
+getjpgfromissuu()
+{
+if [ "$#" != 2 ];then
+ echo "Usage: $0 <issuu doc url> <page_count>">/dev/stderr
+ return 1
+fi
+issuu_url="${1}"
+title=$(curl $issuu_url 2>/dev/null|sed -n 's/<title>\(.*\)<\/title>/\1/Ip' )
+if [[ "$title" == "Issuu - Page not found" ]];then
+  echo "${issuu_url} not found"
+  return 2
+fi
+issuu_html=$(curl "$issuu_url" 2>/dev/null)
+docId=$(grep -Po '"documentId":"\K.[^"]*' <<<${issuu_html})
+if [[ -z "${docId}" ]];then
+  echo "Issuu Document Id not found"
+  return 3
+fi
+#title=$(echo "${title//by *}"|sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+title="$(basename $issuu_url)"
+
+echo -e "$title\njpg files will be download to\n./${title} folder\n"
+mkdir -p "${title}"
+zerocount=0
+for i in $(eval echo {1..$2})
+do
+        filename="${title}_page_"
+        zerocount=$((${#2} - ${#i}))        
+        if [[ $zerocount > 0 ]];then
+ 	       for j in $(eval echo {1..$zerocount})
+    	    do
+    	       filename="${filename}0"             
+    	    done
+    	fi
+        filename="${filename}${i}.jpg"
+        echo "Downloading Page ${i} ..."
+        wget  "http://image.issuu.com/${docId}/jpg/page_${i}.jpg" -O "./${title}/${filename}" 2>/dev/null
+        if [ "$(find "${title}/${filename}" -size 0)" != "" ]; then
+			find "${title}" -size 0 -delete
+			break
+		fi
+
+done
+		[ -f "${title}.cbz" ] || zip -r "${title}.cbz" "${title}"
+
+return 0;
+}
+getjpgfromissuu $@
+exit  $?
+
+
+
