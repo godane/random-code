@@ -15,16 +15,18 @@ for i in $c; do
 			fi
 		fi
 	fi
-#bash download.sh $i
+	#curl -s https://manualzz.com/models/802 | grep doc/ | sed 's|.*href="/doc/||g' | sed 's|/.*||g' | sort | uniq
+bash download.sh $i
 find -name "${i}.pdf" -empty -delete
 ls ${i}.pdf | while read file; do
-	t="10"
-	sleep $t
-	echo "sleep $t"
-	title1="$(curl -s https://manualzz.com/doc/$i/ | grep og:title | sed 's|.*content="||g' | sed 's| \| .*||g')"
+	#t="10"
+	#sleep $t
+	#echo "sleep $t"
+	[ -f ${i}.html ] || wget -c  https://manualzz.com/doc/$i/ -O ${i}.html
+	title1="$(cat ${i}.html | grep og:title | sed 's|.*content="||g' | sed 's| \| .*||g')"
 	title="$title1"
-
-	basekeywords="manualzz; manuals;"
+	keywords="$(cat ${i}.html | grep 'name="keywords' | sed 's|.*content="||g' | sed 's|,|;|g' | sed 's|".*||g')"
+	basekeywords="manualzz; manuals; $keywords;"
 
 	ia upload $id "$file" -H "x-archive-check-file:0" -H "x-archive-queue-derive:0" \
 		--metadata="collection:godaneinbox" \
