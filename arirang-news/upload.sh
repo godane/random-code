@@ -19,7 +19,7 @@ for i in $1; do
 		fi
 	fi
 	fi
-	basekeywords="Arirang; Radio News; Aircheck;"
+	basekeywords="Arirang; Radio News; Aircheck; $code; $pcode;"
 	creator="Arirang"
 	lang="english"
 
