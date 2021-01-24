@@ -5,6 +5,7 @@ for m in $(seq -w 03 12); do
 for d in $(seq -w 01 31); do
 find $y/$m/$d -type f | while read file; do
 
+id="the-larry-elder-show-${y}-${m}-${d}"
 name="The Larry Elder Show"
 title="${name} - ${m}/${d}/${y}"
 date="${y}-${m}-${d}"
@@ -25,7 +26,7 @@ basekeywords="Larry Elder; ${name};"
 		--metadata="collection:godaneinbox" \
 		--metadata="mediatype:audio" \
 		--metadata="language:english" \
-		--metadata="creator=$creator"
+		--metadata="creator=$creator" \
 		--metadata="date:$date" \
 		--metadata="title:$title" \
 		--metadata="subject:${basekeywords}"
