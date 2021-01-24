@@ -1,5 +1,6 @@
 #!/bin/bash
 
+check="yes"
 for y in 2012; do
 for m in $(seq -w 03 12); do
 for d in $(seq -w 01 31); do
@@ -10,7 +11,7 @@ name="The Larry Elder Show"
 title="${name} - ${m}/${d}/${y}"
 date="${y}-${m}-${d}"
 creator="Larry Elder"
-basekeywords="Larry Elder; ${name};"	
+basekeywords="Larry Elder; ${name};"
 [ -f $file ] || continue
 	if [ "$check" == "yes" ]; then
 		url="archive.org/download/$id"
@@ -26,7 +27,7 @@ basekeywords="Larry Elder; ${name};"
 		--metadata="collection:godaneinbox" \
 		--metadata="mediatype:audio" \
 		--metadata="language:english" \
-		--metadata="creator=$creator" \
+		--metadata="creator:$creator" \
 		--metadata="date:$date" \
 		--metadata="title:$title" \
 		--metadata="subject:${basekeywords}"
