@@ -3,6 +3,7 @@
 
 check="yes"
 c="$1"
+ip="$2"
 for i in $c; do
 	id="manualzz-id-${i}"
 	if [ "$check" == "yes" ]; then
@@ -16,7 +17,8 @@ for i in $c; do
 		fi
 	fi
 	#curl -s https://manualzz.com/models/802 | grep doc/ | sed 's|.*href="/doc/||g' | sed 's|/.*||g' | sort | uniq
-bash download.sh $i
+bash download.sh $i $ip
+killall -9 firefox
 find -name "${i}.pdf" -empty -delete
 ls ${i}.pdf | while read file; do
 	#t="10"
