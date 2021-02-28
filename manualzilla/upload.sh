@@ -24,7 +24,7 @@ ls ${i}.pdf | while read file; do
 	[ -f ${i}.html ] || wget -c https://manualzilla.com/doc/$i/ -O ${i}.html
 	title1="$(cat ${i}.html | grep og:title | sed 's|.*content="||g' | sed 's| \| .*||g' | sed 's|".*||g')"
 	title="$title1"
-	keywords="$(cat ${i}.html | grep 'name="keywords' | sed 's|.*content="||g' | sed 's|,|;|g' | sed 's|".*||g')"
+	keywords="$(cat ${i}.html | itemListElement | sed 's|,|\n|g' | grep name | sed 's|.*":"||g' | sed 's|"$|;|g' | tr '\n' ' ')"
 	basekeywords="manualzilla; manuals; $keywords;"
 
 	ia upload $id "$file" -H "x-archive-check-file:0" -H "x-archive-queue-derive:0" \
