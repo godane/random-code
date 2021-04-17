@@ -27,7 +27,6 @@ creator="TWiT"
 		--metadata="mediatype:$mediatype" \
 		--metadata="language:english" \
 		--metadata="creator:$creator" \
-		--metadata="date:$date" \
 		--metadata="title:$title" \
 		--metadata="subject:${basekeywords}" 
 done
