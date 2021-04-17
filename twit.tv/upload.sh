@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+check="yes"
 show="sn"
 show1="security-now"
 type="Audio"
@@ -22,7 +22,7 @@ basekeywords="TWiT; Podcast; Computers; Tech; Audio; Leo Laporte; Steve Gibson;"
 title="TWiT.tv Security Now ${type} Only Archive"
 mediatype="${type,,}"
 creator="TWiT"
-	ia upload $id "$file" \
+	ia upload $id "$file" -H "x-archive-queue-derive:0" \
 		--metadata="collection:godaneinbox" \
 		--metadata="mediatype:$mediatype" \
 		--metadata="language:english" \
