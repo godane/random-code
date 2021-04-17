@@ -5,6 +5,7 @@ show="sn"
 show1="security-now"
 type="Audio"
 ls ${show}*.mp3 | while read file; do
+id="twit-tv-${show1}-${type,,}-only-archive"
 
 [ -f $file ] || continue
 	if [ "$check" == "yes" ]; then
@@ -19,7 +20,6 @@ ls ${show}*.mp3 | while read file; do
 	fi
 basekeywords="TWiT; Podcast; Computers; Tech; Audio; Leo Laporte; Steve Gibson;"
 title="TWiT.tv Security Now ${type} Only Archive"
-id="twit-tv-${show1}-${type,,}-only-archive"
 mediatype="${type,,}"
 creator="TWiT"
 	ia upload $id "$file" \
