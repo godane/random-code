@@ -64,15 +64,16 @@ for type in $ad0 ADA ADB ADC ADP; do
 
 	#anum="$(curl -s http://www.dtic.mil/docs/citations/${b}${i} | grep 'Accession Number : ' | sed 's|.*</b>||g' | sed 's|</p>||g')"
 
-	title1="$(curl -A Firefox -s https://$domain/docs/citations/${b}${i} | grep '<title>' | sed 's|<title>||g' | sed 's|</title>||g')"
+	title1="$(curl -A Firefox -s https://$domain/sti/citations/${b}${i} | grep '<title>' | sed 's|<title>||g' | sed 's|</title>||g')"
 	title="DTIC ${b}${i}: $title1"
-	desc="$(curl -A Firefox -s https://$domain/docs/citations/${b}${i} | grep 'Abstract' | tail -1 | sed 's|.* : </b>||g' | sed 's|</p>||g')"
+	desc="$(curl -A Firefox -s https://$domain/sti/citations/${b}${i} | grep 'Abstract' | tail -1 | sed 's|.*<p>||g' | sed 's|</p>||g')"
 
-	creator="$(curl -A Firefox -s https://$domain/docs/citations/${b}${i} | grep 'Author(s) :' | sed 's|.* : </b>||g' | sed 's|  ;   |; |g' | sed 's|</p>||g')"
-	cauthor="$(curl -A Firefox -s https://$domain/docs/citations/${b}${i} | grep 'Corporate Author : ' | sed 's|.*</b>||g' | sed 's|</p>||g')"
-	keywords="$(curl -A Firefox -s https://$domain/docs/citations/${b}${i} | grep 'citation_keywords' | sed 's|.*content="||g' | sed 's|">||g' | sed 's|, |; |g')"
+	creator="$(curl -A Firefox -s https://$domain/sti/citations/${b}${i} | grep -A100 'Author(s):' | grep '                                 >' | grep , | sed 's|</a>||g' | sed 's|.*>||g')"
+	cauthor="$(curl -A Firefox -s https://$domain/sti/citations/${b}${i} | grep -A1 'Corporate Author: ' | tail -1 | sed 's|.*<h2>||g' | sed 's||</h2>|g')"
+	keywords="$(curl -A Firefox -s https://$domain/sti/citations/${b}${i} | grep -A25 'citation_keywords' | grep ',$' | sed 's|  ||g' | sed 's|,.*|;|g' | tr -d '\n' )"
+
 	basekeywords="DTIC Archive; ${creator}; ${cauthor}; ${keywords};"
-	date1="$(curl -A Firefox -s https://$domain/docs/citations/${b}${i} | grep 'citation_date' | sed 's|.*content="||g' | sed 's|">||g')"
+	date1="$(curl -A Firefox -s https://$domain/sti/citations/${b}${i} | grep 'citation_date' | sed 's|.*content="||g' | sed 's|".*||g')"
 	if [ "$(echo "${date1}" | grep ^[A-Z])" != "" ]; then
 		date2="$(echo 1 "$date1")"
 		date="$(date -d "$date2" +%Y-%m-%d)"
