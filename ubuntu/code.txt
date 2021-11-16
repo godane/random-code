@@ -1,0 +1,71 @@
+
+#delete 90_zsys_system_autosnapshot and 50command-not-found in /etc/apt/apt.conf.d
+
+debootstrap --include linux-generic,grub-pc,net-tools,locales,xz-utils --components main,multiverse,restricted,universe --arch amd64 impish chroot http://localhost/ubuntu
+
+#make sure to add both en_US.UTF-8 and ko_KR.UTF-8
+dpkg-reconfigure locales
+
+
+#popos /etc/network/interfaces
+auto lo
+iface lo inet loopback
+
+
+#common packages for all desktop metapackages
+apt-get install acpid alsa-utils apparmor bzip2 ca-certificates console-setup console-setup-linux discover dnsmasq dosfstools dvd+rw-tools eject file fuse gdbm-l10n gddrescue genisoimage gpart gpm groff-base growisofs hdparm htop kbd keyboard-configuration laptop-detect lsof man-db mc mdadm mime-support netcat netcat-traditional ntfs-3g ntpdate openssh-client openssh-server openssh-sftp-server openssl pciutils pm-utils powermgmt-base psmisc python3 rfkill rsync sdparm smartmontools squashfs-tools ssh unzip usb-modeswitch usbutils wget wireless-tools xkb-data zip curl sudo p7zip-full dhcpcd5 resolvconf bridge-utils ebtables neofetch vcdimager unar tree dnsutils pcmciautils memtest86+ lm-sensors acpi-support hddtemp mscompress grub-efi espeak-ng zstd
+
+apt-get install apt-mirror debootstrap build-essential cmake git python3-pip python zipcmp zipmerge ziptool kiwix kiwix-tools zim-tools automake meson
+
+#mount -t overlay -o lowerdir=000-ubuntu-minimal,upperdir=001-xorg,workdir=999-work overlay 999-merge
+
+
+
+apt-get install xubuntu-desktop
+
+apt-get install  xfce4 xfce4-goodies 
+
+apt-get remove tumbler
+
+
+
+apt-get install transmission deluge pidgin filezilla sabnzbdplus hexchat foomatic-db-compressed-ppds 
+
+
+#firefox-esr on debian
+apt-get install firefox aegisub gimp geany xarchiver audacity gpicview audacious gparted smplayer evince virt-manager hplip hplip-gui pdftk img2pdf ocrmypdf exiftool lighttpd okular mpv mediainfo inkscape lmms hydrogen recordmydesktop vlc xdotool obs-studio simple-scan python3-debian mesa-utils xdg-user-dirs-gtk mate-calc gucharmap thunderbird network-manager-pptp-gnome
+
+apt-get install libreoffice
+
+apt-get install forensics-all forensics-extra forensics-extra-gui
+
+apt-get install multimedia-video multimedia-animation multimedia-audio-utilities multimedia-photography multimedia-broadcasting winetricks wine64-tools glslang-tools
+
+apt-get install virtualbox virtualbox-qt virtualbox-guest-additions-iso virtualbox-ext-pack
+
+apt-get install binfmt-support qemu qemu-utils
+apt-get install sidplay-base qemu-user-static vde2 qemu-block-extra ovmf qemu-system-x86
+
+dpkg --add-architecture i386
+apt-get update
+
+apt-get install wine32
+#may not be installed with ubuntu 21.10
+apt-get install pcsx2
+#to fix the pcsx2 fonts issue
+fc-cache -s -v
+apt-get reinstall fonts-lato
+
+apt-get install libgl1-mesa-dri:amd64 libgl1-mesa-dri:i386 libgl1-mesa-glx:amd64 libgl1-mesa-glx:i386
+apt-get install games-emulator
+#for all plugins in retroarch you need all libretro-* packages
+apt-get install libretro-*
+
+#for japanese chinese  and korean support
+#apt-get install japan* chinese* korean*
+apt-get install language-pack-ko language-pack-gnome-ko
+apt-get install gimp-help-en gimp-help-ko kde-config-fcitx libreoffice-help-ko gnome-user-docs-ko libreoffice-l10n-ko hunspell-ko fonts-noto-cjk-extra thunderbird-locale-ko firefox-locale-ko ibus-hangul fcitx-hangul
+
+
+
+
