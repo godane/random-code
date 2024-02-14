@@ -6,7 +6,7 @@
 #k="2366"
 id="$1"
 #ip="$2"
-#check="yes"
+check="yes"
 download="true"
 if [ "$ip" != "" ]; then
     proxy="-e use_proxy=yes -e http_proxy="$ip" -e https_proxy="$ip""
@@ -26,22 +26,27 @@ fi
 if [ ! -f $file -a ! -f archive.org/download/manualzz-id-${id} ]; then
 #brave-browser --headless --dump-dom --all-renderers --allow-running-insecure-content --user-agent firefox https://manualzz.com/doc/$id/ > ${id}.html
 useragent="Mozilla/5.0 (X11; Linux i686; rv:84.0) Gecko/20100101 Firefox/84.0."
-#[ -f ${id}.html ] ||  wget -U "$useragent" --no-check-certificate -e robots=off $proxy -c https://manualzz.com/doc/${id}/ -O ${id}.html
-[ -f ${id}.html ] || bash ./save_page_as -b firefox --load-wait-time 12 --save-wait-time 3  -d ${id}.html https://manualzz.com/doc/${id}/
-url="$(cat ${id}.html | grep pdf | grep data-src= | sed 's|%2F|/|g' | sed 's|%3D|=|g' | sed 's|%3F|?|g'  | sed 's|%26|\&|g' | sed 's|\&img=.*||g' | sed 's|.*file=//|http://|g')"
+sed -i "s|manualzz.com.*|manualzz.com/doc/${id}/a/\",|g" scraper.sh
+sed -i "s|HTML|${id}.html|g" scraper.sh
+bash scraper.sh
+sed -i "s|${id}.html|HTML|g" scraper.sh
+url="$(cat ${id}.html | sed 's| src=|\ndata-src=|g' | grep -v googleads.g.doubleclick | grep manualzz.com | grep pdf | sed 's|%2F|/|g'  | sed 's|%3D|=|g'  | sed 's|%3F|?|g' | sed 's|%26|\&|g' | sed 's|\&img=.*||g' | sed 's|.*file=//|http://|g' | tail -1 | sed 's|&amp;.*||g')"
 echo "sleep 1"
 sleep 1
 if [ "$download" == "true" ]; then
 echo "downloading ${file}"
-[ -f $file ] || wget -T 3 -U "$useragent" --no-check-certificate -e robots=off $proxy -c $url -O ${file}
-if [ -f $file ]; then
-if [ "$2" != "" ]; then
-    t="$2"
-else
-    t="20"
+if [ ! -f $file ]; then
+for a in $(seq 1 19); do
+echo "try $a"
+timeout 5 wget -T 3 -U "$useragent" --no-check-certificate -e robots=off -c $url -O ${file} -a ${id}.log
+if [ "$(cat ${id}.log | grep ' saved \[')" != "" ]; then
+	break
 fi
-echo "sleep $t"
-sleep $t
+done
+wget -T 3 -U "$useragent" --no-check-certificate -e robots=off -c $url -O ${file}
+fi
+if [ -f wget-log ]; then
+rm wget-log
 fi
 fi
 #code for title for upload script
