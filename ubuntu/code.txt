@@ -1,54 +1,77 @@
 
-#delete 90_zsys_system_autosnapshot and 50command-not-found in /etc/apt/apt.conf.d
+truncate -s 1GB xfstest.img
+mkfs.xfs -m reflink=0 -m crc=0 -f xfstest.img
 
-debootstrap --include linux-generic,grub-pc,net-tools,locales,xz-utils --components main,multiverse,restricted,universe --arch amd64 impish chroot http://localhost/ubuntu
+#to turn off power_save to wifi device
+sudo iw dev wlp5s0 set power_save off
+
+
+#code to get a list of packages
+#dpkg-query -W -f='${Package}\n'
+
+#notes about lunar
+#delete apparmor=0 cause it will cause root (/) overlayfs to be read-only 
+#add max_loop=0 so squashfs modules are not limited to 8
+
+#add this for cyberpunk 2077 mods to work with red4ext and cyber engine tweaks to work
+#needs to be before $WINE in the start script
+#WINEDLLOVERRIDES="version.dll,winmm.dll,RED4ext.dll=n,b"
+
+#dxvk d3d12=native d3d12core=native d3dcompiler_47 -q vcrun2022
+
+#debootstrap  --components main,multiverse,restricted,universe --arch amd64 jammy chroot http://localhost/ubuntu
+
+#debootstrap --components main,multiverse,restricted,universe --arch amd64 mantic chroot http://localhost/ubuntu
+
+debootstrap --components main,multiverse,restricted,universe --arch amd64 noble chroot http://localhost/ubuntu
+
+
+
+#--include=linux-generic,dialog,net-tools,locales,xz-utils,squashfs-tools,perl
 
 #make sure to add both en_US.UTF-8 and ko_KR.UTF-8
 dpkg-reconfigure locales
 
+#when using --variant=minbase
+apt-get update
+apt-get dist-upgrade
 
-#popos /etc/network/interfaces
-auto lo
-iface lo inet loopback
-
-
-#common packages for all desktop metapackages
-apt-get install acpid alsa-utils apparmor bzip2 ca-certificates console-setup console-setup-linux discover dnsmasq dosfstools dvd+rw-tools eject file fuse gdbm-l10n gddrescue genisoimage gpart gpm groff-base growisofs hdparm htop kbd keyboard-configuration laptop-detect lsof man-db mc mdadm mime-support netcat netcat-traditional ntfs-3g ntpdate openssh-client openssh-server openssh-sftp-server openssl pciutils pm-utils powermgmt-base psmisc python3 rfkill rsync sdparm smartmontools squashfs-tools ssh unzip usb-modeswitch usbutils wget wireless-tools xkb-data zip curl sudo p7zip-full dhcpcd5 resolvconf bridge-utils ebtables neofetch vcdimager unar tree dnsutils pcmciautils memtest86+ lm-sensors acpi-support hddtemp mscompress grub-efi espeak-ng zstd
-
-apt-get install apt-mirror debootstrap build-essential cmake git python3-pip python zipcmp zipmerge ziptool kiwix kiwix-tools zim-tools automake meson
-
-#mount -t overlay -o lowerdir=000-ubuntu-minimal,upperdir=001-xorg,workdir=999-work overlay 999-merge
+#making of 001-linux-generic
+apt-get install linux-generic kmod linux-base dialog dhcpcd net-tools locales xz-utils perl squashfs-tools wget curl htop neofetch wireless-regdb wpasupplicant libldap-common libsasl2-modules
 
 
+apt-get install ubuntu-standard ubuntu-minimal ubuntu-server lighttpd
 
-apt-get install xubuntu-desktop
+apt-get install acpid alsa-utils bzip2 ca-certificates console-setup console-setup-linux discover dnsmasq dosfstools dvd+rw-tools eject file gdbm-l10n gddrescue genisoimage gpart gpm groff-base growisofs hdparm htop kbd keyboard-configuration laptop-detect lsof man-db mc mdadm  netcat-openbsd netcat-traditional ntfs-3g ntpdate openssh-client openssh-server openssh-sftp-server openssl pciutils pm-utils powermgmt-base psmisc python3 rfkill rsync sdparm smartmontools squashfs-tools ssh unzip usb-modeswitch usbutils wget wireless-tools xkb-data zip curl sudo p7zip-full dhcpcd5 resolvconf bridge-utils ebtables neofetch vcdimager unar tree dnsutils pcmciautils memtest86+ lm-sensors  mscompress grub-efi espeak-ng zstd dialog xdotool zpaq jpegoptim grub-pc-bin at hostapd iw gocryptfs dos2unix syslinux-utils firejail 
 
-apt-get install  xfce4 xfce4-goodies 
+apt-get install rustup cargo
 
-apt-get remove tumbler
-
-
-
-apt-get install transmission deluge pidgin filezilla sabnzbdplus hexchat foomatic-db-compressed-ppds 
+#was in mantic repo, not noble
+#mime-support
 
 
-#firefox-esr on debian
-apt-get install firefox aegisub gimp geany xarchiver audacity gpicview audacious gparted smplayer evince virt-manager hplip hplip-gui pdftk img2pdf ocrmypdf exiftool lighttpd okular mpv mediainfo inkscape lmms hydrogen recordmydesktop vlc xdotool obs-studio simple-scan python3-debian mesa-utils xdg-user-dirs-gtk mate-calc gucharmap thunderbird network-manager-pptp-gnome
+apt-get install apt-mirror debmirror debootstrap build-essential cmake git python3-pip zipcmp zipmerge ziptool automake meson kiwix-tools zim-tools lighttpd
+#need to install complie kernel
+apt-get install flex bison libssl-dev libelf-dev dwarves
 
-apt-get install libreoffice
+apt-get install xorg lubuntu-desktop
 
-apt-get install forensics-all forensics-extra forensics-extra-gui
+apt-get install firefox gparted geany gimp gpicview inkscape audacity obs-studio mediainfo mpv smplayer recordmydesktop audacious okular hplip hplip-gui vlc virt-manager xdotool simple-scan python3-debian mesa-utils xdg-user-dirs-gtk mate-calc gucharmap thunderbird network-manager-pptp-gnome hexchat filezilla sabnzbdplus pdftk img2pdf ocrmypdf exiftool lmms hydrogen transmission pidgin
 
-apt-get install multimedia-video multimedia-animation multimedia-audio-utilities multimedia-photography multimedia-broadcasting winetricks wine64-tools glslang-tools
+apt-get install multimedia-video multimedia-animation multimedia-audio-utilities multimedia-photography multimedia-broadcasting winetricks wine64 wine64-tools glslang-tools foomatic-db-compressed-ppds
 
 apt-get install virtualbox virtualbox-qt virtualbox-guest-additions-iso virtualbox-ext-pack
+dkms install virtualbox/7.0.14 -k 6.8.4
 
-apt-get install binfmt-support qemu qemu-utils
+
+apt-get install binfmt-support qemu-utils
 apt-get install sidplay-base qemu-user-static vde2 qemu-block-extra ovmf qemu-system-x86
+#apt-get install virt-manager virt-viewer libguestfs libvirt-openrc
 
 dpkg --add-architecture i386
 apt-get update
 
+#needed wine32 no matter what for gog-games-windows modules to work
 apt-get install wine32
 #may not be installed with ubuntu 21.10
 apt-get install pcsx2
@@ -61,11 +84,16 @@ apt-get install games-emulator
 #for all plugins in retroarch you need all libretro-* packages
 apt-get install libretro-*
 
-#for japanese chinese  and korean support
+#for japanese chinese and korean support
 #apt-get install japan* chinese* korean*
 apt-get install language-pack-ko language-pack-gnome-ko
-apt-get install gimp-help-en gimp-help-ko kde-config-fcitx libreoffice-help-ko gnome-user-docs-ko libreoffice-l10n-ko hunspell-ko fonts-noto-cjk-extra thunderbird-locale-ko firefox-locale-ko ibus-hangul fcitx-hangul
+apt-get install gimp-help-en gimp-help-ko kde-config-fcitx libreoffice-help-ko gnome-user-docs-ko libreoffice-l10n-ko hunspell-ko fonts-noto-cjk-extra ibus-hangul fcitx-hangul
+apt-get install fonts-wqy-microhei fonts-wqy-zenhei fonts-dejima-mincho fonts-takao fonts-takao-pgothic fonts-takao-gothic fonts-takao-mincho  fonts-nanum-coding fonts-nanum fonts-nanum-extra fonts-baekmuk
 
+#gerbera doesn't shutdown on shutdown
+systemctl disable gerbera
+#make sure dhcpcd and net-tools are installed
+apt-get install dhcpcd net-tools
 
-
-
+#special commands to get payday2 to work
+# __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink
