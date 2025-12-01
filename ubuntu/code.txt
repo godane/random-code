@@ -1,9 +1,18 @@
 
+# grep -oP 'https://mega.nz[^"<]+' | sort -
+
+#cat mame0279.xml | grep capcom | grep -v isdevice | grep -v cloneof | grep name | grep -v 'rom name=' | sed 's|.*name="||g' | sed 's|".*||g' | sort | uniq > list.txt
+
+options ath10k_core skip_otp=y
+options ath10k_pci irq_mode=1
+
 truncate -s 1GB xfstest.img
 mkfs.xfs -m reflink=0 -m crc=0 -f xfstest.img
 
 #to turn off power_save to wifi device
 sudo iw dev wlp5s0 set power_save off
+# keep screen on instead of going blank after 10 mins
+xset s noblank dpms force on
 
 
 #code to get a list of packages
@@ -16,16 +25,44 @@ sudo iw dev wlp5s0 set power_save off
 #add this for cyberpunk 2077 mods to work with red4ext and cyber engine tweaks to work
 #needs to be before $WINE in the start script
 #WINEDLLOVERRIDES="version.dll,winmm.dll,RED4ext.dll=n,b"
-
 #dxvk d3d12=native d3d12core=native d3dcompiler_47 -q vcrun2022
+
+#when you find out there submodules after a git clone
+git submodule update --init --recursive
+#needed when updating modules
+git pull --recurse-submodules
 
 #debootstrap  --components main,multiverse,restricted,universe --arch amd64 jammy chroot http://localhost/ubuntu
 
 #debootstrap --components main,multiverse,restricted,universe --arch amd64 mantic chroot http://localhost/ubuntu
 
-debootstrap --components main,multiverse,restricted,universe --arch amd64 noble chroot http://localhost/ubuntu
+#debootstrap --components main,multiverse,restricted,universe --arch amd64 noble chroot http://localhost/ubuntu
+
+#debootstrap --components main,multiverse,restricted,universe --arch amd64 oracular chroot http://localhost/ubuntu
+
+#debootstrap --components main,multiverse,restricted,universe --arch amd64 plucky chroot http://localhost/ubuntu
+
+debootstrap --components main,multiverse,restricted,universe --arch amd64 questing chroot http://localhost/ubuntu
 
 
+#debian sid
+debootstrap  --components main,contrib,non-free-firmware,non-free --arch amd64 trixie chroot http://localhost/debian
+
+#install devuan debootstrap before doing debootstrap
+#devuan
+debootstrap  --no-check-gpg --components main,contrib,non-free-firmware,non-free --arch amd64 excalibur chroot http://localhost/devuan
+
+#make merged repo with debian and devuan repos
+#ln -s /opt/apt-mirror/mirror/ftp.debian.org/debian/pool/ DEBIAN
+#ln -s /opt/apt-mirror/mirror/us.dev.devuan.org/devuan/pool/ DEVUAN
+
+#W: GPG error: http://localhost/mozillateam oracular InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY AEBDF4819BE21867 NO_PUBKEY 9BDB3D89CE49EC21
+#apt-key adv --recv-key --keyserver keyserver.ubuntu.com AEBDF4819BE21867
+#apt-key adv --recv-key --keyserver keyserver.ubuntu.com 9BDB3D89CE49EC21
+
+add-apt-repository ppa:mozillateam/ppa
+#change URIs line in /etc/apt/sources.list.d/mozillateam-ubuntu-ppa-plucky.sources into
+# http://localhost/mozillateam/
 
 #--include=linux-generic,dialog,net-tools,locales,xz-utils,squashfs-tools,perl
 
@@ -36,15 +73,39 @@ dpkg-reconfigure locales
 apt-get update
 apt-get dist-upgrade
 
-#making of 001-linux-generic
-apt-get install linux-generic kmod linux-base dialog dhcpcd net-tools locales xz-utils perl squashfs-tools wget curl htop neofetch wireless-regdb wpasupplicant libldap-common libsasl2-modules
+#making of 001-linux-generic-ubuntu
+apt-get install linux-generic kmod linux-base dialog dhcpcd net-tools locales xz-utils perl squashfs-tools wget curl htop fastfetch wireless-regdb wpasupplicant libldap-common libsasl2-modules firmware-ath9k-htc
+#debian
+apt-get install linux-image-amd64 linux-headers-amd64 firmware-amd-graphics kmod linux-base dialog dhcpcd net-tools locales xz-utils perl squashfs-tools wget curl htop fastfetch wireless-regdb wpasupplicant libldap-common libsasl2-modules firmware-ath9k-htc dkms
 
+#devuan
+apt-get install devuan-*
+apt-get install devscripts-devuan
 
 apt-get install ubuntu-standard ubuntu-minimal ubuntu-server lighttpd
 
-apt-get install acpid alsa-utils bzip2 ca-certificates console-setup console-setup-linux discover dnsmasq dosfstools dvd+rw-tools eject file gdbm-l10n gddrescue genisoimage gpart gpm groff-base growisofs hdparm htop kbd keyboard-configuration laptop-detect lsof man-db mc mdadm  netcat-openbsd netcat-traditional ntfs-3g ntpdate openssh-client openssh-server openssh-sftp-server openssl pciutils pm-utils powermgmt-base psmisc python3 rfkill rsync sdparm smartmontools squashfs-tools ssh unzip usb-modeswitch usbutils wget wireless-tools xkb-data zip curl sudo p7zip-full dhcpcd5 resolvconf bridge-utils ebtables neofetch vcdimager unar tree dnsutils pcmciautils memtest86+ lm-sensors  mscompress grub-efi espeak-ng zstd dialog xdotool zpaq jpegoptim grub-pc-bin at hostapd iw gocryptfs dos2unix syslinux-utils firejail 
+#for world of warcraft server
+apt-get install  mariadb-server php php-mysqli git cmake make gcc g++ clang libssl-dev libbz2-dev libreadline-dev libncurses-dev libboost-all-dev tmux gnupg curl unzip sudo ccache google-perftools  jq screen libncurses5-dev libncursesw5-dev gdb gdbserver expect
 
-apt-get install rustup cargo
+apt-get install mariadb*
+
+apt-get install freedombox
+#here is where the secret password
+#sudo cat /var/lib/plinth/firstboot-wizard-secret
+#NOTICE: Not enabling PHP 8.4 FPM by default.
+#NOTICE: To enable PHP 8.4 FPM in Apache2 do:
+#NOTICE: a2enmod proxy_fcgi setenvif
+#NOTICE: a2enconf php8.4-fpm
+#NOTICE: You are seeing this message because you have apache2 package installed
+
+apt-get install acpid alsa-utils bzip2 ca-certificates console-setup console-setup-linux discover dnsmasq dosfstools dvd+rw-tools eject file gdbm-l10n gddrescue genisoimage gpart gpm groff-base growisofs hdparm htop kbd keyboard-configuration laptop-detect lsof man-db mc mdadm  netcat-openbsd netcat-traditional ntfs-3g openssh-client openssh-server openssh-sftp-server openssl pciutils pm-utils powermgmt-base psmisc python3 rfkill rsync sdparm smartmontools squashfs-tools ssh unzip usb-modeswitch usbutils wget xkb-data zip curl sudo p7zip-full dhcpcd5 resolvconf bridge-utils ebtables fastfetch vcdimager unar tree dnsutils pcmciautils memtest86+ lm-sensors  mscompress grub-efi espeak espeak-ng zstd dialog xdotool zpaq jpegoptim grub-pc-bin at hostapd iw gocryptfs dos2unix syslinux-utils firejail winbind fdupes libiw30t64 ntpsec-ntpdate
+
+#for debain
+apt-get install wireless-tools lighttpd ntpsec-ntpdate
+#was in noble repo, not oracular
+#apt-get install wireless-tools
+
+#apt-get install rustup cargo
 
 #was in mantic repo, not noble
 #mime-support
@@ -54,22 +115,75 @@ apt-get install apt-mirror debmirror debootstrap build-essential cmake git pytho
 #need to install complie kernel
 apt-get install flex bison libssl-dev libelf-dev dwarves
 
-apt-get install xorg lubuntu-desktop
+apt-get install xorg 
 
-apt-get install firefox gparted geany gimp gpicview inkscape audacity obs-studio mediainfo mpv smplayer recordmydesktop audacious okular hplip hplip-gui vlc virt-manager xdotool simple-scan python3-debian mesa-utils xdg-user-dirs-gtk mate-calc gucharmap thunderbird network-manager-pptp-gnome hexchat filezilla sabnzbdplus pdftk img2pdf ocrmypdf exiftool lmms hydrogen transmission pidgin
+#debian
+apt-get install task-lxde-desktop
+apt-get install task-lxqt-desktop
+apt-get install task-xfce-desktop
+apt-get install task-mate-desktop
+apt-get install task-kde-desktop
+apt-get install task-gnome-desktop
+
+#to change the default desktop on debian
+update-alternatives --config x-session-manager
+#below is example to add desktop support in boot command line
+#update-alternatives --quiet --set x-session-manager xfce4
+
+apt-get install lightdm-autologin-greeter
+#remove the lightdm-autologin-greeter.conf file to not break autologin
+rm /etc/lightdm/lightdm.conf.d/lightdm-autologin-greeter.conf
+
+#ubuntu
+apt-get install lubuntu-desktop
+
+apt-get install firefox gparted geany gimp gpicview inkscape audacity obs-studio mediainfo mpv smplayer recordmydesktop audacious okular hplip hplip-gui vlc virt-manager xdotool simple-scan python3-debian mesa-utils xdg-user-dirs-gtk mate-calc gucharmap thunderbird network-manager-pptp-gnome hexchat filezilla sabnzbdplus pdftk img2pdf ocrmypdf exiftool lmms hydrogen pidgin hardinfo deluge jstest-gtk antimicro spek transmission-qt pcmanfm-qt
+
+
 
 apt-get install multimedia-video multimedia-animation multimedia-audio-utilities multimedia-photography multimedia-broadcasting winetricks wine64 wine64-tools glslang-tools foomatic-db-compressed-ppds
 
+
+#debian
+wget -O- https://www.virtualbox.org/download/oracle_vbox_2016.asc | gpg --dearmor --yes --output /usr/share/keyrings/oracle-virtualbox-2016.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian trixie contrib" | tee /etc/apt/sources.list.d/virtualbox.list
+apt-get update
+apt-get install virtualbox-7.2
+dkms install virtualbox/7.2 -k 6.12.43+deb13-amd64
+cd /usr/src/vboxhost-7.2.4
+export KERN_VER=6.12.57+deb13-amd64
+make
+make install
+
+#ubuntu
 apt-get install virtualbox virtualbox-qt virtualbox-guest-additions-iso virtualbox-ext-pack
-dkms install virtualbox/7.0.14 -k 6.8.4
+#dkms install virtualbox/7.0.14 -k 6.8.4
+#dkms install virtualbox/7.0.20 -k 6.13.1-porteux
+
 
 
 apt-get install binfmt-support qemu-utils
 apt-get install sidplay-base qemu-user-static vde2 qemu-block-extra ovmf qemu-system-x86
-#apt-get install virt-manager virt-viewer libguestfs libvirt-openrc
+apt-get install virt-manager virt-viewer
+
+apt-get install php libapache2-mod-php php-mcrypt php-mysql php-cgi php-curl php-json
+
+systemctl disable apache2
+systemctl enable lighttpd
+
+apt-get install gstreamer1.0-libav gstreamer1.0-plugins-ugly gstreamer1.0-plugins-bad
+
+#ubuntu
+apt-get install libgstreamer-plugins-bad1.0 libgstreamer-plugins-good1.0 libgstreamer-plugins-base1.0
 
 dpkg --add-architecture i386
 apt-get update
+
+
+apt-get install gstreamer1.0-libav:i386 gstreamer1.0-plugins-ugly:i386 gstreamer1.0-plugins-bad:i386 libgtk2.0-0t64:i386
+
+#you can only install x86_64 or i386 not both
+#apt-get install libgstreamer-plugins-bad1.0:i386 libgstreamer-plugins-good1.0:i386 libgstreamer-plugins-base1.0:i386
 
 #needed wine32 no matter what for gog-games-windows modules to work
 apt-get install wine32
@@ -79,21 +193,33 @@ apt-get install pcsx2
 fc-cache -s -v
 apt-get reinstall fonts-lato
 
-apt-get install libgl1-mesa-dri:amd64 libgl1-mesa-dri:i386 libgl1-mesa-glx:amd64 libgl1-mesa-glx:i386
-apt-get install games-emulator
+apt-get install games-emulator mame-tools
 #for all plugins in retroarch you need all libretro-* packages
 apt-get install libretro-*
 
 #for japanese chinese and korean support
 #apt-get install japan* chinese* korean*
 apt-get install language-pack-ko language-pack-gnome-ko
-apt-get install gimp-help-en gimp-help-ko kde-config-fcitx libreoffice-help-ko gnome-user-docs-ko libreoffice-l10n-ko hunspell-ko fonts-noto-cjk-extra ibus-hangul fcitx-hangul
-apt-get install fonts-wqy-microhei fonts-wqy-zenhei fonts-dejima-mincho fonts-takao fonts-takao-pgothic fonts-takao-gothic fonts-takao-mincho  fonts-nanum-coding fonts-nanum fonts-nanum-extra fonts-baekmuk
+apt-get install gimp-help-en gimp-help-ko kde-config-fcitx libreoffice-help-ko gnome-user-docs-ko libreoffice-l10n-ko hunspell-ko ibus-hangul fcitx-hangul
+apt-get install fonts-wqy-microhei fonts-noto-cjk-extra fonts-wqy-zenhei fonts-dejima-mincho fonts-takao  fonts-takao-gothic fonts-takao-mincho fonts-nanum-extra fonts-baekmuk
+
+#ubuntu
+apt-get install fonts-takao-pgothic
+
+#remove tranmission if its 4.0.6
+#apt-get remove transmission transmission-qt
+
+#apt-get install fonts-nanum-coding
 
 #gerbera doesn't shutdown on shutdown
 systemctl disable gerbera
 #make sure dhcpcd and net-tools are installed
-apt-get install dhcpcd net-tools
+#apt-get install dhcpcd net-tools
+
+#may need this if
+#sudo systemctl mask tpm2.target
+
+
 
 #special commands to get payday2 to work
 # __GLX_VENDOR_LIBRARY_NAME=mesa MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink
