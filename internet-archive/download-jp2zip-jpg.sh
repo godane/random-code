@@ -1,7 +1,8 @@
 #!/bin/bash
 
 for i in $(cat list.txt); do
-jp2file="$(curl -s $i | grep jp2.zip | sed 's|.*href="|https://archive.org|g' | sed 's|".*||g' | tail -1)"
+# jp2file="$(curl -s $i | grep jp2.zip | sed 's|.*href="|https://archive.org|g' | sed 's|".*||g' | tail -1)" # the raw_jp2.zip file
+jp2file="$(curl -s $i | grep jp2.zip | sed 's|.*href="|https://archive.org|g' | sed 's|".*||g' | tail -3 | head -1)" # the jp2.zip file
 id=$(basename $i)
 if [ ! -d $id ]; then
 [ -d $id ] || mkdir -p $id
